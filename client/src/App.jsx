@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
-import { Map, AlertTriangle, Users, Lightbulb, LayoutDashboard, Bell, FileText, Home, Menu, X, Shield } from 'lucide-react'
+import { Map, AlertTriangle, Users, Lightbulb, LayoutDashboard, Bell, FileText, Home, Menu, X, Shield, LogOut } from 'lucide-react'
 import LandingPage from './pages/LandingPage'
 import CrisisMap from './pages/CrisisMap'
 import ReportCrisis from './pages/ReportCrisis'
@@ -8,10 +8,13 @@ import VolunteerHub from './pages/VolunteerHub'
 import InnovationHub from './pages/InnovationHub'
 import Dashboard from './pages/Dashboard'
 import Alerts from './pages/Alerts'
+import LoginPage from './pages/LoginPage'
 import Chatbot from './components/Chatbot'
 import SOSButton from './components/SOSButton'
+import { useAuth } from './context/AuthContext'
 
 function Sidebar({ isOpen, onClose }) {
+  const { user, logout } = useAuth()
   return (
     <>
       <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose} />
@@ -54,48 +57,79 @@ function Sidebar({ isOpen, onClose }) {
           </NavLink>
         </nav>
         <div className="sidebar-footer">
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0' }}>
-            <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #3b82f6, #8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.85rem', fontWeight: 700, color: 'white' }}>A</div>
-            <div>
-              <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>Admin User</div>
-              <div style={{ fontSize: '0.7rem', color: '#64748b' }}>admin@crisisconnect.org</div>
-            </div>
-          </div>
+          <button className="nav-link logout-btn" onClick={logout}>
+            <LogOut size={19} /> Sign Out
+          </button>
         </div>
       </aside>
     </>
   )
 }
 
+function Topbar({ user, onMenuClick }) {
+  return (
+    <header className="topbar">
+      <div className="topbar-left">
+        <button className="sidebar-toggle" onClick={onMenuClick}>
+          <Menu size={24} />
+        </button>
+      </div>
+      <div className="topbar-right">
+        <div className="user-profile">
+          <div className="user-info">
+            <span className="user-name">{user.name}</span>
+            <span className="user-role">{user.role}</span>
+          </div>
+          <div className="user-avatar">
+            {user.name.charAt(0).toUpperCase()}
+          </div>
+        </div>
+      </div>
+    </header>
+  )
+}
+
 function AppContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const { user, loading } = useAuth()
   const location = useLocation()
   const isLanding = location.pathname === '/'
 
+  if (loading) return <div className="full-loader"><div className="login-spinner" /></div>
+  
+  if (!user) {
+    return <LoginPage />
+  }
+
   if (isLanding) {
     return (
-      <>
-        <LandingPage />
+      <div className="app-layout">
+        <Topbar user={user} onMenuClick={() => setSidebarOpen(true)} />
+        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <main className="main-content landing-main">
+          <LandingPage />
+        </main>
+        <SOSButton />
         <Chatbot />
-      </>
+      </div>
     )
   }
 
   return (
     <div className="app-layout">
-      <button className="sidebar-toggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
-        {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
-      </button>
+      <Topbar user={user} onMenuClick={() => setSidebarOpen(true)} />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <main className="main-content">
-        <Routes>
-          <Route path="/map" element={<CrisisMap />} />
-          <Route path="/report" element={<ReportCrisis />} />
-          <Route path="/volunteers" element={<VolunteerHub />} />
-          <Route path="/innovation" element={<InnovationHub />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/alerts" element={<Alerts />} />
-        </Routes>
+        <div className="content-padder">
+          <Routes>
+            <Route path="/map" element={<CrisisMap />} />
+            <Route path="/report" element={<ReportCrisis />} />
+            <Route path="/volunteers" element={<VolunteerHub />} />
+            <Route path="/innovation" element={<InnovationHub />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/alerts" element={<Alerts />} />
+          </Routes>
+        </div>
       </main>
       <SOSButton />
       <Chatbot />
