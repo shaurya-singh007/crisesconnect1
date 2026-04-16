@@ -1,0 +1,45 @@
+[
+  {
+    "id": "usr-001",
+    "name": "Admin CrisisConnect",
+    "email": "admin@crisisconnect.org",
+    "password": "$2a$10$YQ8Gk5Qf0YXrHjKqKzQXXeZJ5gK9cqZJ5gK9cqZJ5gK9cqZJ5gK9c",
+    "role": "admin",
+    "phone": "+91-9876543210",
+    "location": "New Delhi, India",
+    "createdAt": "2025-01-01T00:00:00Z"
+  },
+  {
+    "id": "usr-002",
+    "name": "Priya Sharma",
+    "email": "priya@ngo.org",
+    "password": "$2a$10$YQ8Gk5Qf0YXrHjKqKzQXXeZJ5gK9cqZJ5gK9cqZJ5gK9cqZJ5gK9c",
+    "role": "ngo",
+    "phone": "+91-9876543211",
+    "organization": "Relief India Trust",
+    "location": "Mumbai, India",
+    "createdAt": "2025-01-15T00:00:00Z"
+  },
+  {
+    "id": "usr-003",
+    "name": "Rahul Verma",
+    "email": "rahul@volunteer.com",
+    "password": "$2a$10$YQ8Gk5Qf0YXrHjKqKzQXXeZJ5gK9cqZJ5gK9cqZJ5gK9cqZJ5gK9c",
+    "role": "volunteer",
+    "phone": "+91-9876543212",
+    "skills": ["Medical", "First Aid", "Logistics"],
+    "location": "Bangalore, India",
+    "createdAt": "2025-02-01T00:00:00Z"
+  },
+  {
+    "id": "usr-004",
+    "name": "Ananya Gupta",
+    "email": "ananya@govt.in",
+    "password": "$2a$10$YQ8Gk5Qf0YXrHjKqKzQXXeZJ5gK9cqZJ5gK9cqZJ5gK9cqZJ5gK9c",
+    "role": "government",
+    "phone": "+91-9876543213",
+    "department": "NDMA",
+    "location": "New Delhi, India",
+    "createdAt": "2025-02-15T00:00:00Z"
+  }
+]
