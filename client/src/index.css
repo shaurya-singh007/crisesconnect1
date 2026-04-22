@@ -860,13 +860,14 @@ h1, h2, h3, h4, .hero-title, .login-brand-title {
 .map-sidebar { width: 350px; background: rgba(10, 14, 28, 0.95); border-left: var(--glass-border); padding: 24px; overflow-y: auto; z-index: 20; box-shadow: -5px 0 20px rgba(0,0,0,0.5); }
 
 /* SOS Button */
-.sos-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 100; background: linear-gradient(135deg, #ef4444, #991b1b); color: white; border: 2px solid #fca5a5; width: 80px; height: 80px; border-radius: 50%; font-family: var(--font-display); font-weight: 900; font-size: 1.2rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(239,68,68,0.6); animation: sosPulse 2s infinite; }
+.sos-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; background: linear-gradient(135deg, #ef4444, #991b1b); color: white; border: 2px solid #fca5a5; width: 80px; height: 80px; border-radius: 50%; font-family: var(--font-display); font-weight: 900; font-size: 1.2rem; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(239,68,68,0.6); animation: sosPulse 2s infinite; outline: none; -webkit-tap-highlight-color: transparent; }
+.sos-btn:hover, .sos-btn:active { background: linear-gradient(135deg, #f87171, #dc2626); transform: translateX(-50%) scale(1.05); }
 @keyframes sosPulse { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { box-shadow: 0 0 0 20px rgba(239,68,68,0); } 100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); } }
 
 /* Chatbot */
-.chatbot-trigger { position: fixed; bottom: 30px; right: 30px; z-index: 90; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(59,130,246,0.4); display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+.chatbot-trigger { position: fixed; bottom: 30px; right: 30px; z-index: 9998; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--accent)); color: white; border: none; cursor: pointer; box-shadow: 0 10px 25px rgba(59,130,246,0.4); display: flex; align-items: center; justify-content: center; transition: 0.3s; outline: none; -webkit-tap-highlight-color: transparent; }
 .chatbot-trigger:hover { transform: scale(1.1) rotate(10deg); }
-.chatbot-window { position: fixed; bottom: 100px; right: 30px; z-index: 99; width: 350px; max-height: 500px; background: rgba(15, 20, 35, 0.95); backdrop-filter: blur(20px); border: var(--glass-border); border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); animation: slideUp 0.3s ease-out; }
+.chatbot-window { position: fixed; bottom: 100px; right: 30px; z-index: 9998; width: 350px; max-height: calc(100vh - 120px); background: rgba(15, 20, 35, 0.95); backdrop-filter: blur(20px); border: var(--glass-border); border-radius: 20px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.6); animation: slideUp 0.3s ease-out; }
 
 /* Dashboard Charts */
 .bar-chart { margin-top: 20px; }
@@ -889,21 +890,172 @@ h1, h2, h3, h4, .hero-title, .login-brand-title {
   .sidebar.open { transform: translateX(0); }
   .main-content { margin-left: 0; }
   .topbar { padding: 0 16px; }
-  .map-page { flex-direction: column; }
-  .map-sidebar { width: 100%; height: 40%; }
-  .map-container { height: 60%; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .map-page { flex-direction: column; margin: -16px; height: calc(100vh - 64px); }
+  .map-sidebar { width: 100%; height: 50%; display: flex; flex-direction: column; padding: 16px; }
+  .map-container { height: 50%; width: 100%; }
+  .map-sidebar > div:last-child { max-height: none; flex: 1; overflow-y: auto; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .hero-title { font-size: 2.5rem; }
   .hero-stats { flex-wrap: wrap; gap: 20px; }
 }
 
 @media (max-width: 480px) {
-  .stats-grid { grid-template-columns: 1fr; }
-  .content-padder { padding: 16px; }
+  .stats-grid { grid-template-columns: 1fr; gap: 16px;}
+  .content-padder { padding: 16px; padding-bottom: 120px; /* Leave space for floating buttons */ }
   .login-form-panel { padding: 24px; }
   .form-row { grid-template-columns: 1fr; }
+  .map-container { height: 45%; }
+  .map-sidebar { height: 55%; padding-bottom: 90px; }
+  
+  /* Floating elements adjustments */
+  .sos-btn { width: 68px; height: 68px; bottom: 20px; font-size: 1.1rem; }
+  .chatbot-trigger { width: 54px; height: 54px; bottom: 20px; right: 16px; }
+  .chatbot-window { width: calc(100vw - 32px); right: 16px; bottom: 85px; }
+
+  .page-header h1 { font-size: 1.8rem; }
 }
 
 /* Utils */
 .animate-in { animation: slideUp 0.5s ease-out forwards; opacity: 0; transform: translateY(20px); }
 @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
+
+/* =========================================
+   CHIPS & BUTTONS UX FIXES
+   ========================================= */
+.filter-chip, .tab, .quick-action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #E5E7EB;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  min-height: 32px;
+}
+
+.filter-chip:hover, .tab:hover, .quick-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.filter-chip.active, .tab.active {
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+.filter-chip:active, .tab:active, .quick-action-btn:active {
+  transform: scale(0.96);
+}
+
+/* Flex wrap for chip wrappers */
+.filter-group, .tabs, .quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+}
+
+.tabs {
+  background: transparent;
+  padding: 0;
+}
+
+.quick-actions {
+  padding: 0 16px 12px 16px;
+}
+
+.quick-action-btn {
+  background: rgba(59, 130, 246, 0.1);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.3);
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.quick-action-btn:hover {
+  background: var(--primary);
+  color: white;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.4);
+}
+
+/* =========================================
+   SOS MODAL
+   ========================================= */
+.sos-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.sos-modal {
+  background: var(--bg-card);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 24px;
+  padding: 32px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(239, 68, 68, 0.2);
+  animation: modalScaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalScaleUp { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.sos-modal h2 {
+  color: white;
+  margin-bottom: 8px;
+  font-family: var(--font-display);
+}
+
+.sos-modal input, .sos-modal textarea {
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: white;
+  margin-bottom: 12px;
+  font-family: var(--font-sans);
+}
+
+.sos-modal input:focus, .sos-modal textarea:focus {
+  outline: none;
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.sos-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.sos-modal .btn-danger {
+  width: 100%;
+  padding: 14px;
+  font-size: 1.05rem;
+}
