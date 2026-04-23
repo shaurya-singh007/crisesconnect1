@@ -387,5 +387,101 @@
     "disputeCount": 12,
     "createdAt": "2025-07-14T00:00:00Z",
     "updatedAt": "2025-07-15T09:30:00Z"
+  },
+  {
+    "id": "cr-016",
+    "title": "Volcano Eruption",
+    "type": "Landslide",
+    "description": "Major volcanic eruption near coastal town",
+    "severity": "critical",
+    "status": "active",
+    "lat": 35.3606,
+    "lng": 138.7274,
+    "location": "Fuji, Japan",
+    "reportedBy": "usr-001",
+    "reporterName": "System",
+    "needs": [
+      "Evacuation",
+      "Respirators"
+    ],
+    "volunteersNeeded": 300,
+    "volunteersAssigned": 50,
+    "affectedPeople": 100000,
+    "verifiedCount": 1000,
+    "disputeCount": 0,
+    "createdAt": "2026-04-23T10:30:57.062Z",
+    "updatedAt": "2026-04-23T10:30:57.062Z"
+  },
+  {
+    "id": "cr-017",
+    "title": "Massive Hurricane",
+    "type": "Cyclone",
+    "description": "Category 5 hurricane hitting Florida",
+    "severity": "critical",
+    "status": "active",
+    "lat": 27.9944,
+    "lng": -81.7603,
+    "location": "Florida, USA",
+    "reportedBy": "usr-001",
+    "reporterName": "System",
+    "needs": [
+      "Shelter",
+      "Power"
+    ],
+    "volunteersNeeded": 500,
+    "volunteersAssigned": 120,
+    "affectedPeople": 500000,
+    "verifiedCount": 500,
+    "disputeCount": 0,
+    "createdAt": "2026-04-23T10:30:57.062Z",
+    "updatedAt": "2026-04-23T10:30:57.062Z"
+  },
+  {
+    "id": "cr-018",
+    "title": "Wildfire spreading",
+    "type": "Fire",
+    "description": "Dry winds spreading wildfire across national park",
+    "severity": "high",
+    "status": "active",
+    "lat": -33.8688,
+    "lng": 151.2093,
+    "location": "Sydney, Australia",
+    "reportedBy": "usr-001",
+    "reporterName": "System",
+    "needs": [
+      "Firefighters",
+      "Water"
+    ],
+    "volunteersNeeded": 200,
+    "volunteersAssigned": 90,
+    "affectedPeople": 10000,
+    "verifiedCount": 400,
+    "disputeCount": 1,
+    "createdAt": "2026-04-23T10:30:57.062Z",
+    "updatedAt": "2026-04-23T10:30:57.062Z"
+  },
+  {
+    "id": "cr-019",
+    "title": "Heavy Snowstorm",
+    "type": "Weather",
+    "description": "Unprecedented snowstorm trapping vehicles",
+    "severity": "moderate",
+    "status": "active",
+    "lat": 51.5074,
+    "lng": -0.1278,
+    "location": "London, UK",
+    "reportedBy": "usr-001",
+    "reporterName": "System",
+    "needs": [
+      "Heating",
+      "Food"
+    ],
+    "volunteersNeeded": 100,
+    "volunteersAssigned": 30,
+    "affectedPeople": 5000,
+    "verifiedCount": 200,
+    "disputeCount": 0,
+    "createdAt": "2026-04-23T10:30:57.062Z",
+    "updatedAt": "2026-04-23T10:30:57.062Z"
   }
 ]

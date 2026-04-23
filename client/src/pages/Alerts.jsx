@@ -25,6 +25,7 @@ export default function Alerts() {
     })
     const newAlert = await res.json()
     setAlerts(prev => [newAlert, ...prev])
+    window.dispatchEvent(new CustomEvent('new_alert', { detail: { title: newAlert.title, message: newAlert.message, severity: newAlert.severity } }))
     setShowBroadcast(false)
     setBroadcastForm({ title: '', message: '', severity: 'high', type: 'warning', targetArea: '' })
   }

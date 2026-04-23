@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route, NavLink, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { Map, AlertTriangle, Users, Lightbulb, LayoutDashboard, Bell, FileText, Home, Menu, X, Shield, LogOut } from 'lucide-react'
 import LandingPage from './pages/LandingPage'
 import CrisisMap from './pages/CrisisMap'
@@ -12,6 +13,34 @@ import LoginPage from './pages/LoginPage'
 import Chatbot from './components/Chatbot'
 import SOSButton from './components/SOSButton'
 import { useAuth } from './context/AuthContext'
+
+function ToastContainer() {
+  const [toasts, setToasts] = useState([])
+  useEffect(() => {
+    const handler = (e) => {
+      const id = Date.now()
+      setToasts(p => [...p, { id, ...e.detail }])
+      setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 5000)
+    }
+    window.addEventListener('new_alert', handler)
+    return () => window.removeEventListener('new_alert', handler)
+  }, [])
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className={`toast ${t.severity}`}>
+          <div style={{ color: t.severity === 'critical' ? '#ef4444' : t.severity === 'high' ? '#f97316' : '#8b5cf6' }}>
+            <AlertTriangle size={24} />
+          </div>
+          <div>
+            <h4 style={{ margin: 0, fontSize: '0.95rem' }}>{t.title}</h4>
+            <p style={{ margin: 0, fontSize: '0.8rem', color: '#94a3b8' }}>{t.message}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function Sidebar({ isOpen, onClose }) {
   const { user, logout } = useAuth()
@@ -111,6 +140,7 @@ function AppContent() {
         </main>
         <SOSButton />
         <Chatbot />
+        <ToastContainer />
       </div>
     )
   }
@@ -133,6 +163,7 @@ function AppContent() {
       </main>
       <SOSButton />
       <Chatbot />
+      <ToastContainer />
     </div>
   )
 }
