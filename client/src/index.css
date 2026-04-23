@@ -1640,3 +1640,107 @@ h1, h2, h3, h4, .hero-title, .login-brand-title {
 .new-alert-flash {
   animation: newAlertFlash 1.5s ease-out;
 }
+
+/* =========================================
+   UX IMPROVEMENTS (Skeletons, Empty States, Crisis Buttons)
+   ========================================= */
+
+/* Skeletons */
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite ease-in-out;
+  border-radius: 8px;
+}
+
+.skeleton-text { height: 16px; margin-bottom: 8px; width: 100%; }
+.skeleton-text.short { width: 60%; }
+.skeleton-text.title { height: 24px; margin-bottom: 12px; width: 80%; }
+.skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; }
+.skeleton-card { height: 120px; border-radius: 12px; }
+
+@keyframes skeletonLoading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Empty States */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: var(--bg-card);
+  border: var(--glass-border);
+  border-radius: 20px;
+  margin: 20px 0;
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  opacity: 0.8;
+  filter: drop-shadow(0 10px 15px rgba(0,0,0,0.3));
+}
+
+.empty-state h3 { font-size: 1.3rem; color: white; margin-bottom: 8px; }
+.empty-state p { color: var(--text-muted); font-size: 0.95rem; max-width: 400px; margin-bottom: 24px; }
+
+/* Interactive Crisis Types */
+.crisis-type-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.crisis-type-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  color: var(--text-muted);
+}
+
+.crisis-type-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.crisis-type-btn.active {
+  background: rgba(59, 130, 246, 0.15);
+  border-color: var(--primary);
+  color: white;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.2);
+}
+
+.crisis-type-btn .type-icon { font-size: 1.5rem; }
+.crisis-type-btn .type-label { font-size: 0.8rem; font-weight: 600; text-align: center; }
+
+/* Custom react-hot-toast styles overrides */
+.custom-toast {
+  background: rgba(15, 20, 35, 0.95) !important;
+  backdrop-filter: blur(10px);
+  color: white !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 12px !important;
+}
+
+/* Inline Errors */
+.error-msg {
+  color: var(--danger);
+  font-size: 0.75rem;
+  margin-top: -4px;
+  margin-bottom: 8px;
+  display: block;
+}

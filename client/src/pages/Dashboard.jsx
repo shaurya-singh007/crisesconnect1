@@ -32,8 +32,23 @@ export default function Dashboard() {
     URL.revokeObjectURL(url)
   }
 
-  if (loading) return <div><div className="page-header"><h1>📊 Command Dashboard</h1></div><div className="page-body"><div className="loading-spinner" /></div></div>
-
+  if (loading) return (
+    <div>
+      <div className="page-header">
+        <h1>📊 Command Dashboard</h1>
+        <p>Real-time situational awareness • Auto-refreshing every 30s</p>
+      </div>
+      <div className="page-body">
+        <div className="stats-grid">
+          {[1,2,3,4,5,6].map(n => <div key={n} className="stat-card skeleton" style={{ height: 110 }}></div>)}
+        </div>
+        <div className="dashboard-grid mt-24">
+          <div className="chart-card skeleton" style={{ height: 300 }}></div>
+          <div className="chart-card skeleton" style={{ height: 300 }}></div>
+        </div>
+      </div>
+    </div>
+  )
   const o = stats?.overview || {}
   const bt = stats?.crisisByType || {}
   const bs = stats?.crisisBySeverity || {}

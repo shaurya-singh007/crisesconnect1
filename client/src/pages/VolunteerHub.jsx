@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react'
-import { Users, UserPlus, MapPin, CheckCircle, Clock, Star, Search, Briefcase, Zap } from 'lucide-react'
+import { Users, UserPlus, MapPin, CheckCircle, Clock, Star, Search, Briefcase, Zap, FileQuestion } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import toast from 'react-hot-toast'
 
 const allSkills = ['Medical', 'First Aid', 'Surgery', 'Nursing', 'Logistics', 'Driving', 'Warehousing', 'Tech', 'Communication', 'Drones', 'Counseling', 'Teaching', 'Engineering', 'Heavy Machinery', 'Construction', 'Cooking', 'Food Distribution', 'Firefighting', 'Rescue', 'Swimming', 'Navigation', 'Boating', 'Translation', 'Social Work', 'Electrical', 'Photography', 'Data Analysis', 'Pharmacy', 'Social Media']
 const avatarColors = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#06b6d4']
+
+const regSchema = z.object({
+  name: z.string().min(3, 'Full name must be at least 3 characters'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits'),
+  location: z.string().min(3, 'Location is required'),
+})
 
 export default function VolunteerHub() {
   const [volunteers, setVolunteers] = useState([])
@@ -10,13 +21,24 @@ export default function VolunteerHub() {
   const [search, setSearch] = useState('')
   const [filterSkill, setFilterSkill] = useState('')
   const [showRegister, setShowRegister] = useState(false)
-  const [regForm, setRegForm] = useState({ name: '', email: '', phone: '', location: '', skills: [] })
   const [crises, setCrises] = useState([])
   const [matchResults, setMatchResults] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [selectedSkills, setSelectedSkills] = useState([])
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    resolver: zodResolver(regSchema)
+  })
 
   useEffect(() => {
-    fetch('/api/volunteers').then(r => r.json()).then(setVolunteers).catch(() => {})
-    fetch('/api/crises?status=active').then(r => r.json()).then(setCrises).catch(() => {})
+    Promise.all([
+      fetch('/api/volunteers').then(r => r.json()),
+      fetch('/api/crises?status=active').then(r => r.json())
+    ]).then(([vols, crs]) => {
+      setVolunteers(vols)
+      setCrises(crs)
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [])
 
   const filtered = volunteers.filter(v => {
@@ -25,35 +47,47 @@ export default function VolunteerHub() {
     return true
   })
 
-  const handleRegister = async () => {
-    const res = await fetch('/api/volunteers', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(regForm)
-    })
-    const newVol = await res.json()
-    setVolunteers(prev => [...prev, newVol])
-    setShowRegister(false)
-    setRegForm({ name: '', email: '', phone: '', location: '', skills: [] })
+  const handleRegister = async (data) => {
+    if (selectedSkills.length === 0) {
+      toast.error('Please select at least one skill')
+      return
+    }
+    const loadToast = toast.loading('Registering...')
+    try {
+      const res = await fetch('/api/volunteers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...data, skills: selectedSkills })
+      })
+      const newVol = await res.json()
+      setVolunteers(prev => [newVol, ...prev])
+      setShowRegister(false)
+      reset()
+      setSelectedSkills([])
+      toast.success('Successfully registered as volunteer!', { id: loadToast })
+    } catch (e) {
+      toast.error('Registration failed', { id: loadToast })
+    }
   }
 
   const handleMatch = async (crisisId) => {
-    const res = await fetch('/api/volunteers/match', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ crisisId })
-    })
-    const data = await res.json()
-    setMatchResults(data)
+    const loadToast = toast.loading('Finding matches...')
+    try {
+      const res = await fetch('/api/volunteers/match', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ crisisId })
+      })
+      const data = await res.json()
+      setMatchResults(data)
+      toast.success(`Found ${data.matches?.length || 0} matches`, { id: loadToast })
+    } catch (e) {
+      toast.error('Matching failed', { id: loadToast })
+    }
   }
 
   const toggleSkill = (skill) => {
-    setRegForm(prev => ({
-      ...prev,
-      skills: prev.skills.includes(skill)
-        ? prev.skills.filter(s => s !== skill)
-        : [...prev.skills, skill]
-    }))
+    setSelectedSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill])
   }
 
   return (
@@ -75,65 +109,69 @@ export default function VolunteerHub() {
         <div className="stats-grid">
           <div className="stat-card blue">
             <div className="stat-card-icon"><Users size={24} /></div>
-            <div className="stat-card-value">{volunteers.length}</div>
+            <div className="stat-card-value">{loading ? '-' : volunteers.length}</div>
             <div className="stat-card-label">Total Volunteers</div>
           </div>
           <div className="stat-card green">
             <div className="stat-card-icon"><CheckCircle size={24} /></div>
-            <div className="stat-card-value">{volunteers.filter(v => v.available && !v.currentTask).length}</div>
+            <div className="stat-card-value">{loading ? '-' : volunteers.filter(v => v.available && !v.currentTask).length}</div>
             <div className="stat-card-label">Available Now</div>
           </div>
           <div className="stat-card orange">
             <div className="stat-card-icon"><Briefcase size={24} /></div>
-            <div className="stat-card-value">{volunteers.filter(v => v.currentTask).length}</div>
+            <div className="stat-card-value">{loading ? '-' : volunteers.filter(v => v.currentTask).length}</div>
             <div className="stat-card-label">On Mission</div>
           </div>
           <div className="stat-card purple">
             <div className="stat-card-icon"><Star size={24} /></div>
-            <div className="stat-card-value">{volunteers.reduce((s, v) => s + (v.tasksCompleted || 0), 0)}</div>
+            <div className="stat-card-value">{loading ? '-' : volunteers.reduce((s, v) => s + (v.tasksCompleted || 0), 0)}</div>
             <div className="stat-card-label">Tasks Completed</div>
           </div>
         </div>
 
         {/* Registration Form */}
         {showRegister && (
-          <div className="glass-card animate-in" style={{ marginBottom: 24 }}>
+          <form className="glass-card animate-in" style={{ marginBottom: 24 }} onSubmit={handleSubmit(handleRegister)}>
             <h3 style={{ marginBottom: 20 }}>🙋 Volunteer Registration</h3>
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">Full Name</label>
-                <input className="form-input" placeholder="Your name" value={regForm.name} onChange={e => setRegForm(p => ({ ...p, name: e.target.value }))} />
+                <input className="form-input" placeholder="Your name" {...register('name')} />
+                {errors.name && <span className="error-msg">{errors.name.message}</span>}
               </div>
               <div className="form-group">
                 <label className="form-label">Email</label>
-                <input className="form-input" placeholder="email@example.com" value={regForm.email} onChange={e => setRegForm(p => ({ ...p, email: e.target.value }))} />
+                <input className="form-input" placeholder="email@example.com" {...register('email')} />
+                {errors.email && <span className="error-msg">{errors.email.message}</span>}
               </div>
             </div>
             <div className="form-row">
               <div className="form-group">
                 <label className="form-label">Phone</label>
-                <input className="form-input" placeholder="+91-XXXXXXXXXX" value={regForm.phone} onChange={e => setRegForm(p => ({ ...p, phone: e.target.value }))} />
+                <input className="form-input" placeholder="+91-XXXXXXXXXX" {...register('phone')} />
+                {errors.phone && <span className="error-msg">{errors.phone.message}</span>}
               </div>
               <div className="form-group">
                 <label className="form-label">Location</label>
-                <input className="form-input" placeholder="City, State" value={regForm.location} onChange={e => setRegForm(p => ({ ...p, location: e.target.value }))} />
+                <input className="form-input" placeholder="City, State" {...register('location')} />
+                {errors.location && <span className="error-msg">{errors.location.message}</span>}
               </div>
             </div>
             <div className="form-group">
               <label className="form-label">Select Your Skills</label>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                 {allSkills.map(s => (
-                  <span key={s} className={`skill-tag ${regForm.skills.includes(s) ? 'selected' : ''}`} onClick={() => toggleSkill(s)}>{s}</span>
+                  <button type="button" key={s} className={`skill-tag ${selectedSkills.includes(s) ? 'selected' : ''}`} onClick={() => toggleSkill(s)}>{s}</button>
                 ))}
               </div>
             </div>
             <div style={{ display: 'flex', gap: 12 }}>
-              <button className="btn btn-primary" onClick={handleRegister} disabled={!regForm.name || !regForm.skills.length}>
+              <button type="submit" className="btn btn-primary">
                 <CheckCircle size={18} /> Register
               </button>
-              <button className="btn btn-ghost" onClick={() => setShowRegister(false)}>Cancel</button>
+              <button type="button" className="btn btn-ghost" onClick={() => setShowRegister(false)}>Cancel</button>
             </div>
-          </div>
+          </form>
         )}
 
         {/* Tabs */}
@@ -155,29 +193,45 @@ export default function VolunteerHub() {
                 {allSkills.map(s => <option key={s}>{s}</option>)}
               </select>
             </div>
-            <div className="volunteer-grid">
-              {filtered.map((v, i) => (
-                <div key={v.id} className="volunteer-card animate-in" style={{ animationDelay: `${i * 0.05}s` }}>
-                  <div className="vol-header">
-                    <div className="vol-avatar" style={{ background: avatarColors[i % avatarColors.length] }}>{v.name.charAt(0)}</div>
-                    <div>
-                      <div className="vol-name">{v.name}</div>
-                      <div className="vol-location"><MapPin size={12} /> {v.location}</div>
+            
+            {loading ? (
+              <div className="volunteer-grid">
+                {[1,2,3,4,5,6].map(n => (
+                  <div key={n} className="volunteer-card skeleton skeleton-card"></div>
+                ))}
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="empty-state animate-in">
+                <FileQuestion className="empty-state-icon" />
+                <h3>No Volunteers Found</h3>
+                <p>We couldn't find any volunteers matching your search or filters.</p>
+                <button className="btn btn-primary" onClick={() => { setSearch(''); setFilterSkill(''); }}>Clear Filters</button>
+              </div>
+            ) : (
+              <div className="volunteer-grid">
+                {filtered.map((v, i) => (
+                  <div key={v.id} className="volunteer-card animate-in" style={{ animationDelay: `${i * 0.05}s` }}>
+                    <div className="vol-header">
+                      <div className="vol-avatar" style={{ background: avatarColors[i % avatarColors.length] }}>{v.name.charAt(0).toUpperCase()}</div>
+                      <div>
+                        <div className="vol-name">{v.name}</div>
+                        <div className="vol-location"><MapPin size={12} /> {v.location}</div>
+                      </div>
+                      <span className={`badge ${v.available && !v.currentTask ? 'badge-resolved' : 'badge-high'}`} style={{ marginLeft: 'auto' }}>
+                        {v.available && !v.currentTask ? 'Available' : 'On Task'}
+                      </span>
                     </div>
-                    <span className={`badge ${v.available && !v.currentTask ? 'badge-resolved' : 'badge-high'}`} style={{ marginLeft: 'auto' }}>
-                      {v.available && !v.currentTask ? 'Available' : 'On Task'}
-                    </span>
+                    <div className="vol-skills">
+                      {v.skills.map(s => <span key={s} className="skill-tag">{s}</span>)}
+                    </div>
+                    <div className="vol-stats">
+                      <span><strong>{v.tasksCompleted || 0}</strong> completed</span>
+                      {v.currentTask && <span>🎯 Active: {v.currentTask}</span>}
+                    </div>
                   </div>
-                  <div className="vol-skills">
-                    {v.skills.map(s => <span key={s} className="skill-tag">{s}</span>)}
-                  </div>
-                  <div className="vol-stats">
-                    <span><strong>{v.tasksCompleted}</strong> completed</span>
-                    {v.currentTask && <span>🎯 Active: {v.currentTask}</span>}
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </>
         )}
 
@@ -204,7 +258,7 @@ export default function VolunteerHub() {
                   {matchResults.matches?.map((v, i) => (
                     <div key={v.id} className="volunteer-card" style={{ borderLeft: `3px solid ${v.matchScore >= 3 ? '#22c55e' : v.matchScore >= 2 ? '#eab308' : '#3b82f6'}` }}>
                       <div className="vol-header">
-                        <div className="vol-avatar" style={{ background: avatarColors[i % avatarColors.length] }}>{v.name.charAt(0)}</div>
+                        <div className="vol-avatar" style={{ background: avatarColors[i % avatarColors.length] }}>{v.name.charAt(0).toUpperCase()}</div>
                         <div>
                           <div className="vol-name">{v.name}</div>
                           <div className="vol-location"><MapPin size={12} /> {v.location}</div>
@@ -235,7 +289,7 @@ export default function VolunteerHub() {
                   {(c.needs || []).slice(0, 3).map(n => <span key={n} className="skill-tag" style={{ fontSize: '0.7rem' }}>{n}</span>)}
                 </div>
                 <div style={{ background: 'rgba(255,255,255,0.05)', borderRadius: 8, height: 6, overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${Math.min((c.volunteersAssigned / c.volunteersNeeded) * 100, 100)}%`, background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', borderRadius: 8, transition: 'width 0.5s' }} />
+                  <div style={{ height: '100%', width: `${Math.min(((c.volunteersAssigned || 0) / (c.volunteersNeeded || 1)) * 100, 100)}%`, background: 'linear-gradient(90deg, #3b82f6, #06b6d4)', borderRadius: 8, transition: 'width 0.5s' }} />
                 </div>
               </div>
             ))}

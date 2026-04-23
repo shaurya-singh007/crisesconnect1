@@ -156,7 +156,19 @@ export default function Alerts() {
         </div>
 
         {/* Alert Feed */}
-        {loading ? <div className="loading-spinner" /> : (
+        {loading ? (
+          <div className="alert-feed">
+            {[1, 2, 3].map(n => (
+              <div key={n} className="alert-item skeleton" style={{ height: 100 }}></div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="empty-state animate-in">
+            <Bell className="empty-state-icon" />
+            <h3>No Alerts Found</h3>
+            <p>Everything is quiet. There are currently no active alerts matching your criteria.</p>
+          </div>
+        ) : (
           <div className="alert-feed">
             {filtered.map((alert, i) => (
               <div
