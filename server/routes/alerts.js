@@ -19,7 +19,7 @@ router.get('/', (req, res) => {
   res.json(alerts);
 });
 
-// POST new alert
+// POST new alert — saves + broadcasts via Socket.io
 router.post('/', (req, res) => {
   const alerts = getData();
   const newAlert = {
@@ -29,10 +29,24 @@ router.post('/', (req, res) => {
   };
   alerts.push(newAlert);
   saveData(alerts);
+
+  // --- Real-time broadcast via Socket.io ---
+  const io = req.app.locals.io;
+  const missedAlerts = req.app.locals.missedAlerts;
+  if (io) {
+    io.emit('alert:new', newAlert);
+    console.log(`📡 Alert broadcast: [${newAlert.severity}] ${newAlert.title}`);
+  }
+  // Store in missed queue (keep last 50)
+  if (missedAlerts) {
+    missedAlerts.push(newAlert);
+    if (missedAlerts.length > 50) missedAlerts.shift();
+  }
+
   res.status(201).json(newAlert);
 });
 
-// POST SOS
+// POST SOS — saves + broadcasts via Socket.io
 router.post('/sos', (req, res) => {
   const alerts = getData();
   const sos = {
@@ -46,10 +60,25 @@ router.post('/sos', (req, res) => {
     phone: req.body.phone,
     issuedBy: req.body.name || 'Anonymous',
     issuedByRole: 'citizen',
+    targetArea: 'GPS Location',
     createdAt: new Date().toISOString()
   };
   alerts.push(sos);
   saveData(alerts);
+
+  // --- Real-time broadcast via Socket.io ---
+  const io = req.app.locals.io;
+  const missedAlerts = req.app.locals.missedAlerts;
+  if (io) {
+    io.emit('alert:new', sos);
+    io.emit('sos:new', sos); // Separate SOS event for special handling
+    console.log(`🆘 SOS broadcast from ${sos.issuedBy}`);
+  }
+  if (missedAlerts) {
+    missedAlerts.push(sos);
+    if (missedAlerts.length > 50) missedAlerts.shift();
+  }
+
   res.status(201).json({ message: 'SOS sent! Help is on the way.', alert: sos });
 });
 

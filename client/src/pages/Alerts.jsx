@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Bell, AlertTriangle, Info, Volume2, Users, Send, MapPin, Clock, Filter, Plus, X } from 'lucide-react'
+import { Bell, AlertTriangle, Info, Volume2, Users, Send, MapPin, Clock, Filter, Plus, X, Wifi, WifiOff } from 'lucide-react'
+import { useSocket } from '../context/SocketContext'
 
 const severityIcons = { critical: <AlertTriangle size={20} />, high: <Volume2 size={20} />, moderate: <Info size={20} />, low: <Info size={20} /> }
 const typeLabels = { evacuation: '🚨 Evacuation', warning: '⚠️ Warning', update: '📢 Update', info: 'ℹ️ Info', volunteer_call: '🙋 Volunteer Call', sos: '🆘 SOS' }
@@ -10,9 +11,30 @@ export default function Alerts() {
   const [showBroadcast, setShowBroadcast] = useState(false)
   const [broadcastForm, setBroadcastForm] = useState({ title: '', message: '', severity: 'high', type: 'warning', targetArea: '' })
   const [loading, setLoading] = useState(true)
+  const [newAlertFlash, setNewAlertFlash] = useState(null)
+  const { isConnected, onlineUsers } = useSocket()
 
+  // Initial fetch
   useEffect(() => {
     fetch('/api/alerts').then(r => r.json()).then(d => { setAlerts(d); setLoading(false) }).catch(() => setLoading(false))
+  }, [])
+
+  // Listen for real-time alerts via Socket.io
+  useEffect(() => {
+    const handler = (e) => {
+      const alert = e.detail
+      setAlerts(prev => {
+        // Prevent duplicates
+        if (prev.find(a => a.id === alert.id)) return prev
+        return [alert, ...prev]
+      })
+      // Flash animation for new alert
+      setNewAlertFlash(alert.id)
+      setTimeout(() => setNewAlertFlash(null), 3000)
+    }
+
+    window.addEventListener('socket:alert', handler)
+    return () => window.removeEventListener('socket:alert', handler)
   }, [])
 
   const filtered = filterSeverity ? alerts.filter(a => a.severity === filterSeverity) : alerts
@@ -24,8 +46,7 @@ export default function Alerts() {
       body: JSON.stringify({ ...broadcastForm, issuedBy: 'Admin', issuedByRole: 'admin' })
     })
     const newAlert = await res.json()
-    setAlerts(prev => [newAlert, ...prev])
-    window.dispatchEvent(new CustomEvent('new_alert', { detail: { title: newAlert.title, message: newAlert.message, severity: newAlert.severity } }))
+    // The socket event will handle adding it to the list — no need for manual add
     setShowBroadcast(false)
     setBroadcastForm({ title: '', message: '', severity: 'high', type: 'warning', targetArea: '' })
   }
@@ -46,9 +67,23 @@ export default function Alerts() {
             <h1>🔔 Alerts & Communication</h1>
             <p>Real-time crisis alerts and emergency broadcasts</p>
           </div>
-          <button className="btn btn-danger" onClick={() => setShowBroadcast(!showBroadcast)}>
-            <Plus size={18} /> Broadcast Alert
-          </button>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            {/* Connection status indicator */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '6px 14px', borderRadius: 20,
+              background: isConnected ? 'rgba(34,197,94,0.1)' : 'rgba(239,68,68,0.1)',
+              border: `1px solid ${isConnected ? 'rgba(34,197,94,0.3)' : 'rgba(239,68,68,0.3)'}`,
+              fontSize: '0.78rem', fontWeight: 600,
+              color: isConnected ? '#4ade80' : '#fca5a5'
+            }}>
+              {isConnected ? <Wifi size={14} /> : <WifiOff size={14} />}
+              {isConnected ? `Live • ${onlineUsers} online` : 'Reconnecting...'}
+            </div>
+            <button className="btn btn-danger" onClick={() => setShowBroadcast(!showBroadcast)}>
+              <Plus size={18} /> Broadcast Alert
+            </button>
+          </div>
         </div>
       </div>
 
@@ -67,6 +102,9 @@ export default function Alerts() {
             <div className="flex items-center justify-between" style={{ marginBottom: 20 }}>
               <h3>📡 Broadcast New Alert</h3>
               <button style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }} onClick={() => setShowBroadcast(false)}><X size={20} /></button>
+            </div>
+            <div style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)', borderRadius: 12, padding: '10px 16px', marginBottom: 20, fontSize: '0.82rem', color: '#93c5fd', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Wifi size={14} /> This alert will be broadcast instantly to all {onlineUsers} connected users via real-time WebSocket.
             </div>
             <div className="form-group">
               <label className="form-label">Alert Title</label>
@@ -121,7 +159,11 @@ export default function Alerts() {
         {loading ? <div className="loading-spinner" /> : (
           <div className="alert-feed">
             {filtered.map((alert, i) => (
-              <div key={alert.id} className={`alert-item ${alert.severity} animate-in`} style={{ animationDelay: `${i * 0.05}s` }}>
+              <div
+                key={alert.id}
+                className={`alert-item ${alert.severity} animate-in ${newAlertFlash === alert.id ? 'new-alert-flash' : ''}`}
+                style={{ animationDelay: `${i * 0.05}s` }}
+              >
                 <div className="alert-icon-box">{severityIcons[alert.severity]}</div>
                 <div className="alert-content">
                   <h4>{alert.title}</h4>
