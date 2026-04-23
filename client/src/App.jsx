@@ -12,6 +12,7 @@ import Alerts from './pages/Alerts'
 import LoginPage from './pages/LoginPage'
 import Chatbot from './components/Chatbot'
 import SOSButton from './components/SOSButton'
+import LiveTicker from './components/LiveTicker'
 import { useAuth } from './context/AuthContext'
 
 function ToastContainer() {
@@ -135,6 +136,9 @@ function AppContent() {
       <div className="app-layout">
         <Topbar user={user} onMenuClick={() => setSidebarOpen(true)} />
         <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <div className="ticker-container">
+          <LiveTicker />
+        </div>
         <main className="main-content landing-main">
           <LandingPage />
         </main>
@@ -149,6 +153,9 @@ function AppContent() {
     <div className="app-layout">
       <Topbar user={user} onMenuClick={() => setSidebarOpen(true)} />
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <div className="ticker-container">
+        <LiveTicker />
+      </div>
       <main className="main-content">
         <div className="content-padder">
           <Routes>

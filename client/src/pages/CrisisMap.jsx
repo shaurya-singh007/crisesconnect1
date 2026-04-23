@@ -18,22 +18,52 @@ const typeEmojis = { Flood: '🌊', Earthquake: '🏚️', Cyclone: '🌀', Fire
 function createCrisisIcon(severity, type) {
   const color = severityColors[severity] || '#3b82f6'
   const emoji = typeEmojis[type] || '⚠️'
+  const isCritical = severity === 'critical'
+  const isHigh = severity === 'high'
+  const pulseSpeed = isCritical ? '1.2s' : isHigh ? '2s' : '2.8s'
   return L.divIcon({
-    className: '',
-    html: `<div style="
-      width:38px;height:38px;border-radius:50%;
-      background:${color};border:3px solid ${color};
-      display:flex;align-items:center;justify-content:center;
-      font-size:16px;box-shadow:0 0 15px ${color}80;
-      position:relative;
-    ">
-      ${emoji}
-      ${severity === 'critical' ? `<div style="position:absolute;width:100%;height:100%;border-radius:50%;background:${color}40;animation:markerPulse 2s ease-in-out infinite;"></div>` : ''}
+    className: 'crisis-marker-wrapper',
+    html: `
+    <div class="crisis-marker-root" style="position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;">
+      <div class="crisis-marker-ring" style="
+        position:absolute;width:100%;height:100%;border-radius:50%;
+        border:2px solid ${color};
+        animation:radarPing ${pulseSpeed} cubic-bezier(0,0,0.2,1) infinite;
+        opacity:0;
+      "></div>
+      ${isCritical ? `<div class="crisis-marker-ring" style="
+        position:absolute;width:100%;height:100%;border-radius:50%;
+        border:2px solid ${color};
+        animation:radarPing ${pulseSpeed} cubic-bezier(0,0,0.2,1) infinite 0.6s;
+        opacity:0;
+      "></div>` : ''}
+      <div style="
+        width:36px;height:36px;border-radius:50%;
+        background:radial-gradient(circle at 35% 35%, ${color}ee, ${color}aa);
+        border:2px solid ${color};
+        display:flex;align-items:center;justify-content:center;
+        font-size:15px;
+        box-shadow:0 0 18px ${color}90, inset 0 -2px 6px rgba(0,0,0,0.3);
+        position:relative;z-index:2;
+      ">
+        ${emoji}
+      </div>
+      <div style="
+        position:absolute;width:10px;height:10px;border-radius:50%;
+        background:${color};filter:blur(4px);
+        bottom:-2px;opacity:0.5;z-index:1;
+      "></div>
     </div>
-    <style>@keyframes markerPulse{0%{transform:scale(1);opacity:1}100%{transform:scale(2.5);opacity:0}}</style>`,
-    iconSize: [38, 38],
-    iconAnchor: [19, 19],
-    popupAnchor: [0, -22],
+    <style>
+      @keyframes radarPing{
+        0%{transform:scale(1);opacity:0.8;border-width:2px;}
+        100%{transform:scale(2.8);opacity:0;border-width:0.5px;}
+      }
+      .crisis-marker-wrapper{background:none !important;border:none !important;}
+    </style>`,
+    iconSize: [44, 44],
+    iconAnchor: [22, 22],
+    popupAnchor: [0, -24],
   })
 }
 
@@ -82,9 +112,9 @@ export default function CrisisMap() {
       <div className="map-container">
         <MapContainer center={[22.5, 82]} zoom={5} style={{ height: '100%', width: '100%' }} zoomControl={true} attributionControl={false}>
           <TileLayer
-            className="google-map-tiles"
-            url="https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}"
-            subdomains={['mt0','mt1','mt2','mt3']}
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            subdomains="abcd"
+            maxZoom={19}
           />
           {flyTo && <FlyToCenter center={flyTo} zoom={10} />}
           {filtered.map(crisis => (
