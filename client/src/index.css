@@ -897,15 +897,40 @@ h1, h2, h3, h4, .hero-title, .login-brand-title {
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
   .hero-title { font-size: 2.5rem; }
   .hero-stats { flex-wrap: wrap; gap: 20px; }
+  .login-container { width: 90%; flex-direction: column; }
+}
+
+@media (min-width: 769px) {
+  .sidebar-toggle { display: none; }
+}
+
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 45;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; gap: 16px;}
   .content-padder { padding: 16px; padding-bottom: 120px; /* Leave space for floating buttons */ }
   .login-form-panel { padding: 24px; }
+  .login-branding { padding: 24px; }
   .form-row { grid-template-columns: 1fr; }
   .map-container { height: 45%; }
   .map-sidebar { height: 55%; padding-bottom: 90px; }
+  .hero-section { padding: 80px 20px; }
+  .hero-title { font-size: 2rem; }
+  .hero-actions { flex-direction: column; }
   
   /* Floating elements adjustments */
   .sos-btn { width: 68px; height: 68px; bottom: 20px; font-size: 1.1rem; }
