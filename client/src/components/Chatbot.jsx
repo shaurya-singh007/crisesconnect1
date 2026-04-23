@@ -10,6 +10,19 @@ const quickActions = [
   'Evacuation routes'
 ]
 
+export default function Chatbot() {
+  const [isOpen, setIsOpen] = useState(false)
+  const [messages, setMessages] = useState([
+    { type: 'bot', text: `👋 Welcome to **CrisisConnect AI Assistant**!\n\nI'm here to help you 24/7. Ask me about shelters, helplines, volunteering, or anything crisis-related.` }
+  ])
+  const [input, setInput] = useState('')
+  const [typing, setTyping] = useState(false)
+  const messagesEndRef = useRef(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages, typing])
+
   const sendMessage = async (text) => {
     if (!text.trim()) return
     const userMsg = { type: 'user', text }
