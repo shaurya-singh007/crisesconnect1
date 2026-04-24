@@ -26,11 +26,27 @@ router.post('/', async (req, res) => {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash", systemInstruction: SYSTEM_PROMPT });
 
-    // Format history for Gemini
-    const formattedHistory = (history || []).map(msg => ({
-      role: msg.type === 'bot' ? 'model' : 'user',
-      parts: [{ text: msg.text }]
-    }));
+    // Format history for Gemini ensuring it starts with user and alternates
+    const formattedHistory = [];
+    for (const msg of (history || [])) {
+      const role = msg.type === 'bot' ? 'model' : 'user';
+      
+      // Gemini history must start with a 'user' message
+      if (formattedHistory.length === 0 && role === 'model') {
+        continue;
+      }
+      
+      // Gemini history must strictly alternate between user and model
+      if (formattedHistory.length > 0 && formattedHistory[formattedHistory.length - 1].role === role) {
+        // Append to the last message if the role is the same
+        formattedHistory[formattedHistory.length - 1].parts[0].text += '\n\n' + msg.text;
+      } else {
+        formattedHistory.push({
+          role: role,
+          parts: [{ text: msg.text }]
+        });
+      }
+    }
 
     const chat = model.startChat({
       history: formattedHistory,
