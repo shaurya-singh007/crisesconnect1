@@ -60,6 +60,16 @@ export default function LoginPage() {
     setLoading(false)
   }
 
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    if (!form.email) {
+      setError('Please enter your email address first to reset your password.');
+      return;
+    }
+    setError('');
+    window.dispatchEvent(new CustomEvent('toast_success', { detail: { message: `Password reset link sent to ${form.email}` } }));
+  }
+
   const handleGoogleLogin = async () => {
     setLoading(true);
     // Simulate OAuth provider delay
@@ -198,7 +208,7 @@ export default function LoginPage() {
 
               {isLogin && (
                 <div style={{ textAlign: 'right', marginBottom: '24px' }}>
-                  <a href="#" style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>Forgot password?</a>
+                  <a href="#" onClick={handleForgotPassword} style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>Forgot password?</a>
                 </div>
               )}
 
