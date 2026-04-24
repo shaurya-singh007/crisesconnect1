@@ -4,7 +4,7 @@ import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowRight, Zap, Users, Globe, S
 
 export default function LoginPage() {
   const { login, register } = useAuth()
-  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [showAuthPage, setShowAuthPage] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
   const [form, setForm] = useState({ name: '', email: '', password: '', role: 'volunteer' })
   const [error, setError] = useState('')
@@ -60,6 +60,171 @@ export default function LoginPage() {
     setLoading(false)
   }
 
+  if (showAuthPage) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg-dark)', display: 'flex', flexDirection: 'column' }}>
+        {/* Topbar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '24px 40px' }}>
+          <div className="public-nav-logo">
+            <span style={{ fontSize: '1.5rem' }}>🚨</span>
+            Crisis<span>Connect</span>
+          </div>
+          <button 
+            onClick={() => setShowAuthPage(false)}
+            style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem' }}
+          >
+            ← Back to home
+          </button>
+        </div>
+
+        {/* Main Form Container */}
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '40px 20px' }}>
+          <div style={{ width: '100%', maxWidth: '420px' }}>
+            {/* Tabs */}
+            <div style={{ display: 'flex', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', padding: '4px', marginBottom: '32px' }}>
+              <button 
+                style={{ flex: 1, padding: '10px 0', border: 'none', background: isLogin ? 'rgba(255,255,255,0.1)' : 'transparent', color: isLogin ? 'white' : '#94a3b8', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s' }}
+                onClick={() => { setIsLogin(true); setError(''); }}
+              >
+                Sign in
+              </button>
+              <button 
+                style={{ flex: 1, padding: '10px 0', border: 'none', background: !isLogin ? 'rgba(255,255,255,0.1)' : 'transparent', color: !isLogin ? 'white' : '#94a3b8', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, transition: 'all 0.2s' }}
+                onClick={() => { setIsLogin(false); setError(''); }}
+              >
+                Create account
+              </button>
+            </div>
+
+            <h2 style={{ fontSize: '2rem', marginBottom: '8px', color: 'white', fontFamily: 'var(--font-display)', fontWeight: 800 }}>
+              {isLogin ? 'Welcome back 👋' : 'Join the Mission 🚀'}
+            </h2>
+            <p style={{ color: '#94a3b8', marginBottom: '32px', fontSize: '0.95rem' }}>
+              {isLogin ? (
+                <>New to CrisisConnect? <span onClick={() => setIsLogin(false)} style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>Create a free account</span></>
+              ) : (
+                <>Already have an account? <span onClick={() => setIsLogin(true)} style={{ color: 'var(--primary)', cursor: 'pointer', fontWeight: 600 }}>Sign in here</span></>
+              )}
+            </p>
+
+            <button type="button" style={{ width: '100%', padding: '14px', background: 'white', color: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '1rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', cursor: 'pointer', marginBottom: '24px', transition: 'opacity 0.2s' }} onMouseEnter={e => e.currentTarget.style.opacity = 0.9} onMouseLeave={e => e.currentTarget.style.opacity = 1}>
+              <svg width="20" height="20" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+              </svg>
+              Continue with Google
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
+              <span style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '1px' }}>
+                OR SIGN IN WITH EMAIL
+              </span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }} />
+            </div>
+
+            {error && <div style={{ color: 'var(--danger)', fontSize: '0.85rem', marginBottom: '16px', textAlign: 'center', background: 'rgba(239,68,68,0.1)', padding: '12px', borderRadius: '8px' }}>{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+              {!isLogin && (
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '8px' }}>FULL NAME</label>
+                  <input 
+                    type="text" 
+                    placeholder="John Doe" 
+                    value={form.name} 
+                    onChange={e => setForm(p => ({ ...p, name: e.target.value }))} 
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: '12px', color: 'white', fontSize: '1rem', outline: 'none' }}
+                  />
+                </div>
+              )}
+              
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '8px' }}>EMAIL ADDRESS</label>
+                <input 
+                  type="email" 
+                  placeholder="you@example.com" 
+                  value={form.email} 
+                  onChange={e => setForm(p => ({ ...p, email: e.target.value }))} 
+                  required 
+                  style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: '12px', color: 'white', fontSize: '1rem', outline: 'none' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '8px', position: 'relative' }}>
+                <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '8px' }}>PASSWORD</label>
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showPass ? 'text' : 'password'} 
+                    placeholder="••••••••" 
+                    value={form.password} 
+                    onChange={e => setForm(p => ({ ...p, password: e.target.value }))} 
+                    required 
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', paddingRight: '44px', borderRadius: '12px', color: 'white', fontSize: '1rem', outline: 'none' }}
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setShowPass(!showPass)}
+                    style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: 0 }}
+                  >
+                    {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {isLogin && (
+                <div style={{ textAlign: 'right', marginBottom: '24px' }}>
+                  <a href="#" style={{ color: '#94a3b8', fontSize: '0.85rem', textDecoration: 'none' }}>Forgot password?</a>
+                </div>
+              )}
+
+              {!isLogin && (
+                <div style={{ marginBottom: '24px', marginTop: '16px' }}>
+                  <label style={{ display: 'block', color: '#94a3b8', fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.5px', marginBottom: '8px' }}>ROLE</label>
+                  <select 
+                    value={form.role} 
+                    onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
+                    style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', padding: '14px', borderRadius: '12px', color: 'white', fontSize: '1rem', outline: 'none', appearance: 'none' }}
+                  >
+                    <option value="volunteer">🙋 Volunteer</option>
+                    <option value="ngo">🏥 NGO / Organization</option>
+                    <option value="government">🏛️ Government Agency</option>
+                    <option value="citizen">👤 Citizen Reporter</option>
+                  </select>
+                </div>
+              )}
+
+              <button 
+                type="submit" 
+                disabled={loading}
+                style={{ width: '100%', padding: '16px', background: 'var(--primary)', color: 'white', border: 'none', borderRadius: '12px', fontSize: '1.05rem', fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', cursor: 'pointer', marginTop: isLogin ? '0' : '8px' }}
+              >
+                {loading ? <div className="login-spinner" /> : <>{isLogin ? 'Sign in to my account' : 'Create my account'} <ArrowRight size={18} /></>}
+              </button>
+            </form>
+
+            <p style={{ textAlign: 'center', color: '#64748b', fontSize: '0.8rem', marginTop: '32px' }}>
+              By continuing you agree to our Terms and Privacy Policy.
+            </p>
+
+            {isLogin && (
+               <div style={{ marginTop: '40px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
+                 <span style={{ fontSize: '0.75rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Quick Demo Access</span>
+                 <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '12px', flexWrap: 'wrap' }}>
+                   <button onClick={() => quickLogin('admin@crisisconnect.org', 'admin123')} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer' }}>Admin</button>
+                   <button onClick={() => quickLogin('volunteer@example.com', 'volunteer123')} style={{ background: 'rgba(59,130,246,0.1)', color: '#3b82f6', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer' }}>Volunteer</button>
+                   <button onClick={() => quickLogin('ngo@relief.org', 'ngo123')} style={{ background: 'rgba(16,185,129,0.1)', color: '#10b981', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '0.8rem', cursor: 'pointer' }}>NGO</button>
+                 </div>
+               </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="public-landing">
       {/* Fixed Nav */}
@@ -69,10 +234,10 @@ export default function LoginPage() {
           Crisis<span>Connect</span>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button className="btn btn-ghost" onClick={() => { setIsLogin(true); setShowAuthModal(true) }}>
+          <button className="btn btn-ghost" onClick={() => { setIsLogin(true); setShowAuthPage(true) }}>
             Sign In
           </button>
-          <button className="btn btn-primary" onClick={() => { setIsLogin(false); setShowAuthModal(true) }}>
+          <button className="btn btn-primary" onClick={() => { setIsLogin(false); setShowAuthPage(true) }}>
             Get Started
           </button>
         </div>
@@ -95,10 +260,10 @@ export default function LoginPage() {
             An Open Innovation platform for rapid, coordinated, crowd-powered disaster response. Real-time mapping, volunteer matching, and collective intelligence — all in one place.
           </p>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="btn btn-primary btn-lg" onClick={() => { setIsLogin(true); setShowAuthModal(true) }}>
+            <button className="btn btn-primary btn-lg" onClick={() => { setIsLogin(true); setShowAuthPage(true) }}>
               <Map size={20} /> Enter Command Center
             </button>
-            <button className="btn btn-danger btn-lg" onClick={() => { setIsLogin(false); setShowAuthModal(true) }}>
+            <button className="btn btn-danger btn-lg" onClick={() => { setIsLogin(false); setShowAuthPage(true) }}>
               <Heart size={20} /> Join as Volunteer
             </button>
           </div>
@@ -154,94 +319,7 @@ export default function LoginPage() {
         </p>
       </footer>
 
-      {/* Auth Modal */}
-      {showAuthModal && (
-        <div className="sos-modal-overlay" onClick={() => setShowAuthModal(false)}>
-          <div style={{
-            background: 'rgba(10, 14, 28, 0.95)',
-            backdropFilter: 'blur(24px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 24,
-            padding: '36px',
-            width: '100%',
-            maxWidth: 440,
-            animation: 'modalScaleUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-            boxShadow: '0 25px 60px rgba(0,0,0,0.7)',
-          }} onClick={e => e.stopPropagation()}>
-            <div className="login-tabs" style={{ marginBottom: 24 }}>
-              <button className={`login-tab ${isLogin ? 'active' : ''}`} onClick={() => { setIsLogin(true); setError('') }}>Sign In</button>
-              <button className={`login-tab ${!isLogin ? 'active' : ''}`} onClick={() => { setIsLogin(false); setError('') }}>Create Account</button>
-            </div>
-
-            <h2 className="login-form-title" style={{ textAlign: 'center' }}>
-              {isLogin ? 'Welcome Back' : 'Join the Mission'}
-            </h2>
-            <p className="login-form-subtitle" style={{ textAlign: 'center', marginBottom: 20 }}>
-              {isLogin ? 'Sign in to access the command center' : 'Register to start saving lives'}
-            </p>
-
-            {error && <div className="login-error">{error}</div>}
-
-            <form onSubmit={handleSubmit}>
-              {!isLogin && (
-                <div className="login-input-group">
-                  <User size={18} className="login-input-icon" />
-                  <input type="text" placeholder="Full Name" value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))} />
-                </div>
-              )}
-              <div className="login-input-group">
-                <Mail size={18} className="login-input-icon" />
-                <input type="email" placeholder="Email Address" value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))} required />
-              </div>
-              <div className="login-input-group">
-                <Lock size={18} className="login-input-icon" />
-                <input type={showPass ? 'text' : 'password'} placeholder="Password" value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))} required />
-                <button type="button" className="login-eye-btn" onClick={() => setShowPass(!showPass)}>
-                  {showPass ? <EyeOff size={18} /> : <Eye size={18} />}
-                </button>
-              </div>
-
-              {!isLogin && (
-                <div className="login-input-group">
-                  <Shield size={18} className="login-input-icon" />
-                  <select value={form.role} onChange={e => setForm(p => ({ ...p, role: e.target.value }))}>
-                    <option value="volunteer">🙋 Volunteer</option>
-                    <option value="ngo">🏥 NGO / Organization</option>
-                    <option value="government">🏛️ Government Agency</option>
-                    <option value="citizen">👤 Citizen Reporter</option>
-                  </select>
-                </div>
-              )}
-
-              <button type="submit" className="login-submit-btn" disabled={loading}>
-                {loading ? (
-                  <div className="login-spinner" />
-                ) : (
-                  <>{isLogin ? 'Sign In' : 'Create Account'} <ArrowRight size={18} /></>
-                )}
-              </button>
-            </form>
-
-            {/* Quick login */}
-            {isLogin && (
-              <div className="quick-login-section">
-                <div className="quick-login-divider"><span>Quick Demo Access</span></div>
-                <div className="quick-login-btns">
-                  <button onClick={() => quickLogin('admin@crisisconnect.org', 'admin123')} className="quick-login-btn admin">
-                    <Shield size={14} /> Admin
-                  </button>
-                  <button onClick={() => quickLogin('volunteer@example.com', 'volunteer123')} className="quick-login-btn volunteer">
-                    <Users size={14} /> Volunteer
-                  </button>
-                  <button onClick={() => quickLogin('ngo@relief.org', 'ngo123')} className="quick-login-btn ngo">
-                    <Globe size={14} /> NGO
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      {/* Auth Modal Removed - Now a Full Page */}
     </div>
   )
 }
