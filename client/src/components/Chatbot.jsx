@@ -140,8 +140,8 @@ export default function Chatbot() {
     setTyping(true)
 
     try {
-      // Use the actual Gemini API from the backend
-      const response = await fetch('http://localhost:5000/api/chat', {
+      // Use relative path for universal compatibility (local & live)
+      const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
