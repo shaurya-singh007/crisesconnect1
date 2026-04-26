@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Map, AlertTriangle, Users, Lightbulb, LayoutDashboard, Bell, Shield, Zap, Globe, ArrowRight, Heart } from 'lucide-react'
+import { Map, AlertTriangle, Users, Lightbulb, LayoutDashboard, Bell, Shield, Zap, Globe, ArrowRight, Heart, Bot } from 'lucide-react'
 
 export default function LandingPage() {
   const [stats, setStats] = useState({ activeCrises: 0, totalVolunteers: 0, totalAffected: 0, totalAlerts: 0 })
@@ -43,9 +43,9 @@ export default function LandingPage() {
     { icon: <Map size={28} />, title: 'Live Crisis Map', desc: 'Real-time interactive map showing all active crises color-coded by severity. Click any marker for full details and needs assessment.', link: '/map' },
     { icon: <AlertTriangle size={28} />, title: 'Crisis Reporting', desc: 'Report emergencies in under 2 minutes. Upload photos, mark locations, and crowdsource verification from nearby citizens.', link: '/report' },
     { icon: <Users size={28} />, title: 'Volunteer Matching', desc: 'Smart skill-to-task matching engine connects willing volunteers with exactly where their expertise is needed most.', link: '/volunteers' },
+    { icon: <Bot size={28} />, title: 'AI Voice Assistant', desc: 'Talk to our Gemini-powered AI for instant solutions. Get first aid tips, shelter locations, and emergency guidance via voice commands.', link: '#' },
     { icon: <Lightbulb size={28} />, title: 'Innovation Hub', desc: 'Crowdsource solutions from citizens and experts. Vote on ideas, track adoption, and turn collective intelligence into action.', link: '/innovation' },
     { icon: <LayoutDashboard size={28} />, title: 'Command Dashboard', desc: 'Full situational awareness for coordinators. Live stats, resource tracking, volunteer deployment, and exportable reports.', link: '/dashboard' },
-    { icon: <Bell size={28} />, title: 'Smart Alerts', desc: 'Multi-channel alert broadcasting with proximity targeting. SOS emergency button instantly pings responders with your location.', link: '/alerts' },
   ]
 
   return (
@@ -77,9 +77,9 @@ export default function LandingPage() {
             <Link to="/report" className="btn btn-danger btn-lg">
               <AlertTriangle size={20} /> Report Crisis
             </Link>
-            <Link to="/volunteers" className="btn btn-ghost btn-lg">
-              <Heart size={20} /> Join as Volunteer
-            </Link>
+            <button onClick={() => window.dispatchEvent(new CustomEvent('open_chatbot'))} className="btn btn-ghost btn-lg">
+              <Bot size={20} /> Talk to AI Assistant
+            </button>
           </div>
           <div className="hero-stats">
             <div className="hero-stat">

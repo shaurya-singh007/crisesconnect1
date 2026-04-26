@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
-import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowRight, Zap, Users, Globe, Sparkles, Map, AlertTriangle, Heart } from 'lucide-react'
+import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowRight, Zap, Users, Globe, Sparkles, Map, AlertTriangle, Heart, Bot } from 'lucide-react'
+import Chatbot from '../components/Chatbot'
 
 export default function LoginPage() {
   const { login, register } = useAuth()
@@ -298,6 +299,9 @@ export default function LoginPage() {
             <button className="btn btn-danger btn-lg" onClick={() => { setIsLogin(false); setShowAuthPage(true) }}>
               <Heart size={20} /> Join as Volunteer
             </button>
+            <button className="btn btn-ghost btn-lg" onClick={() => window.dispatchEvent(new CustomEvent('open_chatbot'))}>
+              <Bot size={20} /> Talk to AI Assistant
+            </button>
           </div>
 
           <div className="public-stats">
@@ -350,8 +354,7 @@ export default function LoginPage() {
           Open Innovation Platform for Rapid Crisis Response
         </p>
       </footer>
-
-      {/* Auth Modal Removed - Now a Full Page */}
+      <Chatbot />
     </div>
   )
 }
