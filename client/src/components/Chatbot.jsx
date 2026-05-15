@@ -20,6 +20,51 @@ if (recognition) {
   recognition.lang = 'en-US'
 }
 
+// ── Client-side Gemini fallback (works without server) ──
+const GEMINI_API_KEY = 'AIzaSyCbgT8lKeXz1wjP-GlOidb-8Z-3j3xTZqE'
+
+const SYSTEM_PROMPT = `You are the CrisisConnect AI Assistant, an expert emergency response and disaster management AI.
+Your primary job is to provide accurate, calm, and helpful information during crises.
+Be concise, practical, and empathetic. Format your responses with Markdown for readability (use bold text and emojis where appropriate).
+If asked about shelters, reporting a crisis, volunteering, or evacuation routes, provide helpful general guidance and suggest using the CrisisConnect platform features.
+If you don't know the answer or the situation sounds like a medical/life-threatening emergency, ALWAYS advise the user to call 112 (National Emergency) or 108 (Ambulance).
+Keep responses under 150 words when possible for quick reading.`
+
+async function callGeminiDirect(message, history) {
+  // Build contents array for Gemini
+  const contents = []
+
+  // Add history (skip initial bot welcome)
+  for (const msg of history) {
+    const role = msg.type === 'bot' ? 'model' : 'user'
+    if (contents.length === 0 && role === 'model') continue
+    if (contents.length > 0 && contents[contents.length - 1].role === role) {
+      contents[contents.length - 1].parts[0].text += '\n\n' + msg.text
+    } else {
+      contents.push({ role, parts: [{ text: msg.text }] })
+    }
+  }
+
+  // Add current message
+  contents.push({ role: 'user', parts: [{ text: message }] })
+
+  const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+      contents,
+      generationConfig: { maxOutputTokens: 300, temperature: 0.4 }
+    })
+  })
+
+  const data = await resp.json()
+  if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+    return data.candidates[0].content.parts[0].text
+  }
+  throw new Error(data.error?.message || 'No response from Gemini')
+}
+
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false)
   const [messages, setMessages] = useState([
@@ -140,29 +185,32 @@ export default function Chatbot() {
     setTyping(true)
 
     try {
-      // Use relative path for universal compatibility (local & live)
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          message: messageText,
-          history: messages 
+      // Try server first
+      let responseText
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: messageText, history: messages })
         })
-      })
+        if (!response.ok) throw new Error('Server error')
+        const data = await response.json()
+        responseText = data.response
+      } catch (serverErr) {
+        // Fallback: call Gemini directly from browser
+        console.log('Server unreachable, using direct Gemini API...')
+        responseText = await callGeminiDirect(messageText, messages)
+      }
 
-      const data = await response.json()
-      const botMsg = { type: 'bot', text: data.response }
-      
+      const botMsg = { type: 'bot', text: responseText }
       setMessages(prev => [...prev, botMsg])
       setTyping(false)
-      
-      // Speak the response if voice mode is on
-      speak(data.response)
+      speak(responseText)
     } catch (error) {
       console.error('Chat error:', error)
       const errorMsg = { 
         type: 'bot', 
-        text: "I'm sorry, I'm having trouble connecting to the AI brain. Please try again or call 112 for immediate emergencies." 
+        text: "I'm sorry, I'm having trouble connecting right now. Please try again or call **112** for immediate emergencies." 
       }
       setMessages(prev => [...prev, errorMsg])
       setTyping(false)

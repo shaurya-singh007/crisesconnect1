@@ -4,6 +4,8 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import toast from 'react-hot-toast'
+import confetti from 'canvas-confetti'
+import { Magnetic } from '../components/UIUXProProvider'
 
 const crisisTypes = [
   { value: 'Flood', emoji: '🌊' }, { value: 'Earthquake', emoji: '🏚️' }, { value: 'Cyclone', emoji: '🌀' },
@@ -81,6 +83,12 @@ export default function ReportCrisis() {
       }
       await fetch('/api/crises', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       setSubmitted(true)
+      confetti({
+        particleCount: 150,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#3b82f6', '#8b5cf6', '#ef4444']
+      })
       toast.success('Crisis reported successfully!', { id: loadToast })
     } catch (err) {
       console.error(err)

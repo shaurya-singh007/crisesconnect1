@@ -15,35 +15,45 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = async (email, password) => {
-    const res = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    })
-    const data = await res.json()
-    if (data.token) {
-      const userData = { ...data.user, token: data.token }
-      setUser(userData)
-      localStorage.setItem('crisisconnect_user', JSON.stringify(userData))
-      return { success: true }
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+      const data = await res.json()
+      if (data.token) {
+        const userData = { ...data.user, token: data.token }
+        setUser(userData)
+        localStorage.setItem('crisisconnect_user', JSON.stringify(userData))
+        return { success: true }
+      }
+      return { success: false, error: data.error || 'Login failed' }
+    } catch (err) {
+      console.error('Login fetch error:', err)
+      return { success: false, error: 'Cannot reach server. Make sure the backend is running on port 5000.' }
     }
-    return { success: false, error: data.error || 'Login failed' }
   }
 
   const register = async (name, email, password, role = 'volunteer') => {
-    const res = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, role })
-    })
-    const data = await res.json()
-    if (data.token) {
-      const userData = { ...data.user, token: data.token }
-      setUser(userData)
-      localStorage.setItem('crisisconnect_user', JSON.stringify(userData))
-      return { success: true }
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password, role })
+      })
+      const data = await res.json()
+      if (data.token) {
+        const userData = { ...data.user, token: data.token }
+        setUser(userData)
+        localStorage.setItem('crisisconnect_user', JSON.stringify(userData))
+        return { success: true }
+      }
+      return { success: false, error: data.error || 'Registration failed' }
+    } catch (err) {
+      console.error('Register fetch error:', err)
+      return { success: false, error: 'Cannot reach server. Make sure the backend is running on port 5000.' }
     }
-    return { success: false, error: data.error || 'Registration failed' }
   }
 
   const logout = () => {

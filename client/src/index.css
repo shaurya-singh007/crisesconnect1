@@ -1,3 +1,5 @@
+@import './UIUXPro.css';
+
 :root {
   /* Richer, darker base colors for better contrast */
   --bg-dark: #050810;

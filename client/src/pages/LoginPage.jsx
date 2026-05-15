@@ -1,9 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { Mail, Lock, User, Eye, EyeOff, Shield, ArrowRight, Zap, Users, Globe, Sparkles, Map, AlertTriangle, Heart, Bot } from 'lucide-react'
 import Chatbot from '../components/Chatbot'
+import { Magnetic } from '../components/UIUXProProvider'
+import { useGSAP } from '@gsap/react'
+import gsap from 'gsap'
 
 export default function LoginPage() {
+  const containerRef = useRef(null)
   const { login, register } = useAuth()
   const [showAuthPage, setShowAuthPage] = useState(false)
   const [isLogin, setIsLogin] = useState(true)
@@ -33,6 +37,18 @@ export default function LoginPage() {
     }, interval)
     return () => clearInterval(timer)
   }, [])
+
+  // GSAP Entrance
+  useGSAP(() => {
+    if (!showAuthPage) {
+      const tl = gsap.timeline();
+      tl.from(".public-nav", { y: -50, opacity: 0, duration: 1, ease: "power4.out" })
+        .from(".public-hero h1", { y: 100, opacity: 0, duration: 1.2, ease: "power4.out" }, "-=0.5")
+        .from(".public-hero p", { y: 50, opacity: 0, duration: 1, ease: "power4.out" }, "-=0.8")
+        .from(".hero-btn-group > *", { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: "power4.out" }, "-=0.6")
+        .from(".public-stat", { scale: 0.8, opacity: 0, duration: 0.8, stagger: 0.1, ease: "back.out(1.7)" }, "-=0.5");
+    }
+  }, [showAuthPage]);
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -292,16 +308,22 @@ export default function LoginPage() {
           <p>
             An Open Innovation platform for rapid, coordinated, crowd-powered disaster response. Real-time mapping, volunteer matching, and collective intelligence — all in one place.
           </p>
-          <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button className="btn btn-primary btn-lg" onClick={() => { setIsLogin(true); setShowAuthPage(true) }}>
-              <Map size={20} /> Enter Command Center
-            </button>
-            <button className="btn btn-danger btn-lg" onClick={() => { setIsLogin(false); setShowAuthPage(true) }}>
-              <Heart size={20} /> Join as Volunteer
-            </button>
-            <button className="btn btn-ghost btn-lg" onClick={() => window.dispatchEvent(new CustomEvent('open_chatbot'))}>
-              <Bot size={20} /> Talk to AI Assistant
-            </button>
+          <div className="hero-btn-group" style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
+            <Magnetic>
+              <button className="btn btn-primary btn-lg" onClick={() => { setIsLogin(true); setShowAuthPage(true) }}>
+                <Map size={20} /> Enter Command Center
+              </button>
+            </Magnetic>
+            <Magnetic>
+              <button className="btn btn-danger btn-lg" onClick={() => { setIsLogin(false); setShowAuthPage(true) }}>
+                <Heart size={20} /> Join as Volunteer
+              </button>
+            </Magnetic>
+            <Magnetic>
+              <button className="btn btn-ghost btn-lg" onClick={() => window.dispatchEvent(new CustomEvent('open_chatbot'))}>
+                <Bot size={20} /> Talk to AI Assistant
+              </button>
+            </Magnetic>
           </div>
 
           <div className="public-stats">
